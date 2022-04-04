@@ -1,0 +1,7 @@
+# enviroment settings
+.env
+/env/
+
+#precompile python file
+*.pyc
+/__pycache__/
