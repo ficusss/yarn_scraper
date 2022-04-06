@@ -1,4 +1,5 @@
-from parsers import parse_terrakot18, parse_optwool, parse_2676270, parse_supernitki
+from parsers import parse_terrakot18, parse_optwool, parse_2676270, \
+    parse_supernitki, parse_rukodelie_online, parse_klubok_store
 from pprint import pprint
 import pandas as pd
 
@@ -8,14 +9,19 @@ items = []
 items.extend(parse_terrakot18())
 items.extend(parse_optwool())
 items.extend(parse_2676270())
+items.extend(parse_rukodelie_online())
+items.extend(parse_klubok_store())
 
 df_yarn = pd.DataFrame(items)
 df_yarn = df_yarn.sort_values(by="code")
 
 df_track_yarn = df_yarn[df_yarn.code.isin(TRACK_CODES)]
 print(df_track_yarn)
+print(f"Отслеживаемых наименований в продаже: {len(set(df_track_yarn.code))} / {len(TRACK_CODES)}")
 print()
 print(df_yarn)
 
 
 # parse_supernitki()
+
+# print(parse_rukodelie_online())

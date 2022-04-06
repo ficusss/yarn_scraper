@@ -141,3 +141,70 @@ def parse_supernitki():
     #     })
 
     # return result
+
+
+def parse_rukodelie_online():
+    url = "https://rukodelie-online.ru/catalog/puffy-alize.html"
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+
+    result = []
+
+    items = soup.find_all("div", class_="colour_card")
+    for item in items:
+        code_name = item.find("div", class_="name")
+        code_name = code_name.text.split(" ") if code_name else None
+        code = int(code_name[0].replace("\n", "")) if code_name else None
+        name = " ".join(code_name[1:]).strip() if code_name else None
+        balance = item.find("input", class_="numberfield input floatl")
+        # balance = int(float(balance.get("max")) / 5) if balance else None
+        balance = balance.get("data-real-max") if balance else None
+        balance = float(balance) / 5 if balance else None
+        price_one = item.find("span", class_="fs30")
+        price_one = float(price_one.text)
+        price = price_one * 5
+
+        result.append({
+            "code": code, 
+            "name": name,
+            "balance": balance, 
+            "price": price, 
+            "price_one": price_one,
+            "url": url
+        })
+
+    return result
+
+
+def parse_klubok_store():
+    url = "https://klubok.store/catalog/pryazha/alize/alize_osnovnoe/puffy/"
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+
+    result = []
+
+    price = soup.find("span", class_="price_value")
+    price = float(price.text.split(" ")[0].replace(",", ".")) if price else None
+    price_one = soup.find("div", class_="one-price")
+    price_one = float(price_one.text.split(" ")[-2].replace(",", ".")) if price_one else None
+
+    items = soup.find("ul", class_="tabs_slider RECOMENDATION_slides slides catalog_block")
+    items = items.find_all("li") if isinstance(items, bs4.Tag) else []
+
+    for item in items:
+        code = item.find("span", class_="color-number")
+        code = int(code.text) if code else None
+        name = item.find("span", class_="color-name")
+        name = name.text if name else None
+        balance = None
+
+        result.append({
+            "code": code, 
+            "name": name,
+            "balance": balance, 
+            "price": price, 
+            "price_one": price_one,
+            "url": url
+        })
+
+    return result
