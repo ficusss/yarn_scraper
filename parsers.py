@@ -208,3 +208,37 @@ def parse_klubok_store():
         })
 
     return result
+
+
+def parse_pryazhaoptom():
+    url = "https://pryazhaoptom.ru/shop/pryazha-alize-puffi-alize-puffy/?wmc-currency=RUB"
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+
+    result = []
+
+    price = soup.find("span", class_="woocommerce-Price-amount amount")
+    price = float(price.text.split("\xa0")[0].replace(",", ".")) if price else None
+    price_one = price / 5 if price else None
+
+    items = soup.find("form", class_="variations_form cart")
+    items = items.find("select")  if isinstance(items, bs4.Tag) else None
+    items = items.find_all("option") if isinstance(items, bs4.Tag) else []
+    
+    for item in items:
+        if item.text == "Выбрать опцию":
+            continue
+        code = int(item.text)
+        name = None
+        balance = None
+
+        result.append({
+            "code": code, 
+            "name": name,
+            "balance": balance, 
+            "price": price, 
+            "price_one": price_one,
+            "url": url
+        })
+
+    return result
