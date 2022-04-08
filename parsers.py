@@ -242,3 +242,36 @@ def parse_pryazhaoptom():
         })
 
     return result
+
+
+def parse_yarn_ural():
+    url = "https://xn----7sbbv2athd0a0j.xn--p1ai/catalogue//catalogue/vse-towary/532-puffy"
+
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+
+    result = []
+
+    items = soup.find_all("li", class_="js-price-item")
+    
+    for item in items:
+        code_name = item.find("div", class_="title-")
+        code_name = code_name.text.split(" ") if code_name else None
+        code = int(code_name[0].replace("\n", "")) if code_name else None
+        name = " ".join(code_name[1:]).strip() if code_name else None
+        balance = item.find("input", class_="qty-input js-qty-input")
+        balance = int(balance.get("max")) if balance else None
+        price = item.find("span", class_="js-sum")
+        price = float(price.text)
+        price_one = price / 5
+
+        result.append({
+            "code": code, 
+            "name": name,
+            "balance": balance, 
+            "price": price, 
+            "price_one": price_one,
+            "url": url
+        })
+
+    return result
