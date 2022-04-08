@@ -275,3 +275,67 @@ def parse_yarn_ural():
         })
 
     return result
+
+
+def parse_nopt():
+    url = "https://n-opt.ru/shop/alize-alize-optom/puffy"
+
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+
+    result = []
+
+    items = soup.find_all("div", class_="list-item")
+    
+    for item in items:
+        code_name = [a for a in item.find_all("a") if "Пуффи" in a.text]
+        code_name = code_name[0].text.split(" ")[1:] if code_name else None
+        code = int(code_name[0].replace("\n", "")) if code_name else None
+        name = " ".join(code_name[1:]).strip() if code_name else None
+        balance = None
+        price = [span for span in item.find_all("span") if "руб" in span.text]
+        price = float(price[0].text.split("руб")[0])
+        price_one = price / 5
+
+        result.append({
+            "code": code, 
+            "name": name,
+            "balance": balance, 
+            "price": price, 
+            "price_one": price_one,
+            "url": url
+        })
+
+    return result
+
+
+def parse_airis_spb():
+    url = "https://airis.spb.ru/catalog/vyazanie/pryazha_i_nitochnye_izdeliya/pryazha_alize/1146394_pryazha_alize_puffy_100g_9m_100_mikropoliester_/"
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+
+    print(page.text)
+    result = []
+
+    items = soup.find_all("div", class_="choice-color__color col-12 col-md-4 col-xxl-4 col-exl-4 item")
+    print(items)
+    for item in items:
+        code_name = item.find("div", class_="color__title")
+        code_name = code_name[0].text.strip().split(" ")[1:] if code_name else None
+        code = int(code_name[0].replace("\n", "")) if code_name else None
+        name = " ".join(code_name[1:]).strip() if code_name else None
+        balance = None
+        price_one = item.find("div", class_="main-card__in-cart formula")
+        price_one = float(price_one.text.strip().split(" ")[-1])
+        price = price_one * 5
+
+        result.append({
+            "code": code, 
+            "name": name,
+            "balance": balance, 
+            "price": price, 
+            "price_one": price_one,
+            "url": url
+        })
+
+    return result
