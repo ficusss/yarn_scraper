@@ -339,3 +339,49 @@ def parse_airis_spb():
         })
 
     return result
+
+
+# не удается получить страницу
+def parse_kudel():
+    url = "https://kudel.ru/product/puffy-alize/"
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, "html.parser")
+
+    print(page.text)
+
+    price_one = soup.find("div", class_="last-price")
+    print(price_one)
+    if price_one:
+        price_one = price_one.text.strip()
+        price_one = price_one.replace(",", ".")
+        price_one = float(price_one.split(" ")[-1])
+        price = price_one * 5
+    else:
+        price_one = None
+        price = None
+    
+    result = []
+
+    items = soup.find("div", class_="tab default-tab-view js-product-skus__tab")
+    items = items.find_all("li", itemprop="offers") if isinstance(items, bs4.Tag) else []
+
+    for item in items:
+        code_name = item.find("div", itemprop_="name")
+        if code_name:
+            code_name = code_name.text.strip().split(" ")
+            code = int(code_name[0])
+            name = " ".join(code_name[1:])
+        else:
+            code, name = None, None
+        balance = None
+
+        result.append({
+            "code": code, 
+            "name": name,
+            "balance": balance, 
+            "price": price, 
+            "price_one": price_one,
+            "url": url
+        })
+
+    return result
